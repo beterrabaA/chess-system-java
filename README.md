@@ -1,1 +1,1 @@
-# chess-system-java
+# Chess system
