@@ -13,16 +13,8 @@ public class Position {
         return row;
     }
 
-    public void setRow(int row) {
-        this.row = row;
-    }
-
     public int getColum() {
         return colum;
-    }
-
-    public void setColum(int colum) {
-        this.colum = colum;
     }
 
     @Override
