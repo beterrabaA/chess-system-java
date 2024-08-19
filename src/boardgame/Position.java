@@ -17,19 +17,6 @@ public class Position {
         return colum;
     }
 
-    public void setRow(int row) {
-        this.row = row;
-    }
-
-    public void setColum(int colum) {
-        this.colum = colum;
-    }
-
-    public void setValues(int row, int colum) {
-        this.row = row;
-        this.colum = colum;
-    }
-
     @Override
     public String toString() {
         return row + ", " + colum;
