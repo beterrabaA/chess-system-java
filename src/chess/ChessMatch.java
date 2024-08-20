@@ -73,7 +73,11 @@ public class ChessMatch {
 
         isCheck = testCheck(opponent(currentPlayer));
 
-        nextTurn();
+        if(testCheckMate(opponent(currentPlayer))) {
+            isCheckMate = true;
+        } else {
+            nextTurn();
+        }
         return (ChessPiece) capturedPiece;
     }
 
@@ -127,7 +131,8 @@ public class ChessMatch {
 
     private boolean testCheck(Color color) {
         Position kingPosition = king(color).getChessPosition().toPosition();
-        List<Piece> opponentPieceList = piecesOnTheBoard.stream().filter(x -> ((ChessPiece)x).getColor() == opponent(color)).toList();
+        List<Piece> opponentPieceList = piecesOnTheBoard
+                .stream().filter(x -> ((ChessPiece)x).getColor() == opponent(color)).toList();
         for (Piece currP : opponentPieceList) {
             boolean[][] mat = currP.possibleMoves();
             if (mat[kingPosition.getRow()][kingPosition.getColum()]) {
@@ -135,6 +140,31 @@ public class ChessMatch {
             }
         }
         return false;
+    }
+
+    private boolean testCheckMate(Color color) {
+        if (!testCheck(color)) return false;
+        List<Piece> list = piecesOnTheBoard
+                .stream().filter(x -> ((ChessPiece)x).getColor() == color).toList();
+        for (Piece piece : list) {
+            boolean[][] mat = piece.possibleMoves();
+            for (int i = 0; i < board.getRows(); i++) {
+                for (int j = 0; j < board.getColumns(); j++) {
+                    if (mat[i][j]) {
+                        Position source = ((ChessPiece)piece).getChessPosition().toPosition();
+                        Position target = new Position(i, j);
+                        Piece capturedPiece = makeMove(source,target);
+                        boolean testCheck = testCheck(color);
+                        undoMove(source, target, capturedPiece);
+                        if (!testCheck) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     private void undoMove(Position source,Position target,Piece captured) {

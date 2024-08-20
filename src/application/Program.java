@@ -44,5 +44,7 @@ public class Program {
             }
 
         }
+        UI.clearScreen();
+        UI.printMatch(match,chessPiecesCaptured);
     }
 }
