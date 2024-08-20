@@ -16,9 +16,9 @@ public class Program {
         ChessMatch match = new ChessMatch();
         List<ChessPiece> chessPiecesCaptured = new ArrayList<>();
 
-        while (true) {
+        while (!match.isCheckMate()) {
             try {
-
+            // pre-set king source using check logic
             UI.clearScreen();
             UI.printMatch(match,chessPiecesCaptured);
             System.out.println();
