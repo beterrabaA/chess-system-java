@@ -18,6 +18,7 @@ public class ChessMatch {
     private Board board;
     private List<Piece> piecesOnTheBoard = new ArrayList<>();
     private List<Piece> capturedPieces = new ArrayList<>();
+    private ChessPiece promoted;
 
     public ChessMatch() {
         this.board = new Board(8,8);
@@ -36,6 +37,10 @@ public class ChessMatch {
 
     public ChessPiece getEnPassantVulnerable() {
         return enPassantVulnerable;
+    }
+
+    public ChessPiece getPromoted(){
+        return promoted;
     }
 
     public boolean isCheck() {
@@ -77,6 +82,15 @@ public class ChessMatch {
 
         ChessPiece movedPiece = (ChessPiece)board.piece(target);
 
+        // #specialmove promotion
+        promoted = null;
+        if (movedPiece instanceof Pawn) {
+            if ((movedPiece.getColor() == Color.WHITE && target.getRow() == 0) || (movedPiece.getColor() == Color.BLACK && target.getRow() == 7)) {
+                promoted = (ChessPiece)board.piece(target);
+                promoted = replacePromotedPiece("Q");
+            }
+        }
+
         isCheck = testCheck(opponent(currentPlayer));
 
         if(testCheckMate(opponent(currentPlayer))) {
@@ -94,6 +108,23 @@ public class ChessMatch {
         }
 
         return (ChessPiece) capturedPiece;
+    }
+
+    public ChessPiece replacePromotedPiece(String type) {
+        if (promoted == null) throw new IllegalStateException("There's no piece to be promoted");
+        if (!type.equals("B") && !type.equals("N") && !type.equals("R") & !type.equals("Q")) {
+            return promoted;
+        }
+
+        Position promotedPiecePosition = promoted.getChessPosition().toPosition();
+        Piece piece = board.removePiece(promotedPiecePosition);
+        piecesOnTheBoard.remove(piece);
+
+        ChessPiece newPiece = newPiece(type,promoted.getColor());
+        board.placePiece(newPiece,promotedPiecePosition);
+        piecesOnTheBoard.add(newPiece);
+
+        return newPiece;
     }
 
     private void initialSetup() {
@@ -172,6 +203,7 @@ public class ChessMatch {
             rook.decreaseMoveCount();
         }
 
+        // #specialmove pawn passant
         if (currentSource instanceof Pawn) {
             if (sourcePosition.getColum() != targetPosition.getColum() && currentTarget == null) {
                 Position pawnPosition;
@@ -196,6 +228,22 @@ public class ChessMatch {
     private void nextTurn() {
         currentPlayer = (currentPlayer == Color.WHITE) ? Color.BLACK : Color.WHITE;
         turn++;
+    }
+
+    private ChessPiece newPiece(String type,Color color) {
+        switch (type) {
+            case "B" -> {
+                return new Bishop(board, color);
+            }
+            case "N" -> {
+                return new Knight(board, color);
+            }
+            case "Q" -> {
+                return new Queen(board, color);
+            }default -> {
+                return new Rook(board,color);
+            }
+        }
     }
 
     private Color opponent(Color color) {
@@ -254,6 +302,26 @@ public class ChessMatch {
             board.placePiece(captured,targetPosition);
             piecesOnTheBoard.add(captured);
             capturedPieces.remove(captured);
+        }
+
+        // #specialmove castling king side rook
+        if (currentTarget instanceof King && targetPosition.getColum() == source.getColum() - 2) {
+            Position rookSourceP = new Position(source.getRow(), source.getColum() - 3);
+            Position rookTargetP = new Position(source.getRow(), source.getColum() - 1);
+
+            ChessPiece rook = (ChessPiece)board.removePiece(rookTargetP);
+            board.placePiece(rook, rookSourceP);
+            rook.decreaseMoveCount();
+        }
+
+        // #specialmove castling queen side rook
+        if (currentTarget instanceof King && targetPosition.getColum() == source.getColum() + 2) {
+            Position rookSourceP = new Position(source.getRow(), source.getColum() + 4);
+            Position rookTargetP = new Position(source.getRow(), source.getColum() + 1);
+
+            ChessPiece rook = (ChessPiece)board.removePiece(rookTargetP);
+            board.placePiece(rook, rookSourceP);
+            rook.decreaseMoveCount();
         }
 
         // #specialmove en passant
