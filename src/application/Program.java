@@ -18,7 +18,6 @@ public class Program {
 
         while (!match.isCheckMate()) {
             try {
-            // pre-set king source using check logic
             UI.clearScreen();
             UI.printMatch(match,chessPiecesCaptured);
             System.out.println();
