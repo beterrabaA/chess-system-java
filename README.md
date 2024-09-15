@@ -32,6 +32,6 @@ Java version: [21](https://docs.oracle.com/en/java/javase/21/docs/api/index.html
 
 ## Screenshots
 
-![App Screenshot](/media/macth.gif)
+![App Screenshot](./media/macth.gif)
 
 
